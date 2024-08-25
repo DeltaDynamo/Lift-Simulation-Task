@@ -56,9 +56,9 @@ const createFloors = (floorCount,liftCount) => {
 
         const buttonsContainer = document.createElement("div");
         buttonsContainer.classList.add("buttons-box");
-        buttonsContainer.appendChild(upButton);
+        if(i>0) buttonsContainer.appendChild(upButton);
         buttonsContainer.appendChild(floorNumber);
-        buttonsContainer.appendChild(downButton);
+        if(i<floorCount-1) buttonsContainer.appendChild(downButton);
         floor.appendChild(buttonsContainer);
 
         mainArea.appendChild(floor);
@@ -71,32 +71,47 @@ const createLifts = (liftCount) => {
     for (let i = 0; i < liftCount; i++) {
         const floor0 = document.querySelector("#floor0");
         const lift = document.createElement("div");
+        const leftDoor = document.createElement("div");
+        const rightDoor = document.createElement("div");
+
+        leftDoor.classList.add("door");
+        rightDoor.classList.add("door");
+        leftDoor.classList.add("left-door");
+        rightDoor.classList.add("right-door");
+
+        leftDoor.id = `left-door${i}`;
+        rightDoor.id = `right-door${i}`;
+
+        lift.appendChild(leftDoor);
+        lift.appendChild(rightDoor);
         lift.classList.add('lift')
 
         lift.id = `lift${i}`;
-        lift.style.left = `${100+i*100}px`
+        lift.style.left = `${100+i*100}px`;
         const currLiftState = {
             id: i,
             currentFloor: 0,
             domElement: lift,
             innerHtML: ``,
             isMoving: false,
+            direction: "up",
             isBusy: false,
             movingTo: null,
-        }
+        };
         floor0.appendChild(lift);
-        liftState.push(currLiftState)
+        liftState.push(currLiftState);
     }
 
     setInterval(() => {
         scheduleLiftMovement();
-    }, 1)
+    }, 1);
 };
 
 const buttonClickHander = (event) => {
     const floorNumberCalled = Number(event.target.id.substring(2));
-    const isLiftAlreadyPresentAtFloor = liftState.find(lift => lift.currentFloor === floorNumberCalled)
-    if (isLiftAlreadyPresentAtFloor) {
+    const direction = event.target.id.substring(0,2) === "dn" ? "dn" : "up";
+    const isLiftComing = liftState.find(lift => lift.currentFloor === floorNumberCalled && lift.isMoving === true);
+    if (isLiftComing) {
         return;
     }
     pending.push(floorNumberCalled)
@@ -107,18 +122,38 @@ const moveLiftFromSourceToDestination = (src, dest, liftId) => {
 
     const distance = -1 * (dest) * 120;
     const time = Math.abs(src - dest);
+    const leftDoor = document.querySelector(`#left-door${liftId}`);
+    const rightDoor = document.querySelector(`#right-door${liftId}`);
     setTimeout(() => {
+        leftDoor.style.transform = `translateX(-100%)`;
+        leftDoor.style.transition = `transform 2.5s`;
+        rightDoor.style.transform = `translateX(100%)`
+        rightDoor.style.transition = `transform 2.5s`
         lift.currentFloor = dest;
+        lift.direction = (dest > src) ? "up" : "dn";
         lift.isMoving = false;
-        lift.isBusy = false;
+        //lift.isBusy = false;
         lift.movingTo = null;
-    }, time * 500)
+    }, time * 1000);
 
     lift.isBusy = true;
+
+    setTimeout(() => {
+        leftDoor.style.transform = `translateX(0)`;
+        leftDoor.style.transition = `transform 2.5s`;
+        rightDoor.style.transform = `translateX(0)`
+        rightDoor.style.transition = `transform 2.5s`;
+    }, time * 1000 + 2500);
+
+    setTimeout(() => {
+        lift.isBusy = false;
+    }, time * 1000 + 5000);
+
+    //lift.isBusy = false;
     lift.isMoving = true;
     lift.movingTo = dest;
     lift.domElement.style.transform = `translateY(${distance}px)`;
-    lift.domElement.style.transition = `transform ${time}s`
+    lift.domElement.style.transition = `transform ${time}s`;
 };
 
 const findNearestlift = (liftState, destinationFloor) => {
@@ -126,7 +161,7 @@ const findNearestlift = (liftState, destinationFloor) => {
     let liftId = 0;
     for (let i = 0; i < liftState.length; i++) {
         const lift = liftState[i];
-        if (Math.abs(lift.currentFloor - destinationFloor) < distance && lift.isBusy === false) {
+        if (Math.abs(lift.currentFloor - destinationFloor) < distance && lift.isBusy === false ) {
             distance = Math.abs(lift.currentFloor - destinationFloor);
             liftId = lift.id;
         }

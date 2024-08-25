@@ -103,7 +103,7 @@ button{
 }
 
 .lift{
-    background-color: black;
+    background-color: yellow;
     height: 80px;
     max-height: 80px;
     width: 60px;
@@ -115,6 +115,13 @@ button{
     border-radius: 4px;
     overflow: hidden;
     padding: 0;
+}
+
+.door{
+    border: 1px solid rgb(0, 0, 0);
+    
+    background-color: black;
+    width: 40px;
 }
 
 @media screen and (max-width: 800px) {
