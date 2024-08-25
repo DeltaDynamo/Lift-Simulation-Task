@@ -10,7 +10,7 @@ submitButton.addEventListener('click', (e) => {
     const numberOfFloors = Number(noOfFloors.value);
     const numberOfLifts = Number(noOfLifts.value);
 
-    if (!numberOfFloors || !numberOfLifts) {
+    if ((!numberOfFloors || !numberOfLifts) || (numberOfFloors<0 || numberOfLifts<0)) {
         alert("Please Enter Valid no of Floors and Lifts");
     }
     createScenario(numberOfLifts, numberOfFloors);
@@ -104,7 +104,7 @@ const createLifts = (liftCount) => {
 
     setInterval(() => {
         scheduleLiftMovement();
-    }, 1);
+    }, 10);
 };
 
 const buttonClickHander = (event) => {
@@ -117,43 +117,51 @@ const buttonClickHander = (event) => {
     pending.push(floorNumberCalled)
 };
 
-const moveLiftFromSourceToDestination = (src, dest, liftId) => {
-    const lift = liftState.find(lift => lift.id === liftId);
-
-    const distance = -1 * (dest) * 120;
-    const time = Math.abs(src - dest);
-    const leftDoor = document.querySelector(`#left-door${liftId}`);
-    const rightDoor = document.querySelector(`#right-door${liftId}`);
+function startLiftMovement(lift, dest, time, leftDoor, rightDoor) {
+    //Open Doors on Reaching Floor
     setTimeout(() => {
+        //console.log("Set Timeout 1 called!");
         leftDoor.style.transform = `translateX(-100%)`;
-        leftDoor.style.transition = `transform 2.5s`;
+        leftDoor.style.transition = `transform 2.5s linear`;
         rightDoor.style.transform = `translateX(100%)`
-        rightDoor.style.transition = `transform 2.5s`
+        rightDoor.style.transition = `transform 2.5s linear`
         lift.currentFloor = dest;
-        lift.direction = (dest > src) ? "up" : "dn";
         lift.isMoving = false;
-        //lift.isBusy = false;
         lift.movingTo = null;
     }, time * 1000);
 
     lift.isBusy = true;
 
+    //Close doors
     setTimeout(() => {
+        //console.log("Set Timeout 2 called!");
         leftDoor.style.transform = `translateX(0)`;
-        leftDoor.style.transition = `transform 2.5s`;
+        leftDoor.style.transition = `transform 2.5s linear`;
         rightDoor.style.transform = `translateX(0)`
-        rightDoor.style.transition = `transform 2.5s`;
+        rightDoor.style.transition = `transform 2.5s linear`;
     }, time * 1000 + 2500);
 
+    //After door closes, lift is no more busy
     setTimeout(() => {
+        //console.log("Set Timeout 3 called!");
         lift.isBusy = false;
     }, time * 1000 + 5000);
+}
 
-    //lift.isBusy = false;
+const moveLiftFromSourceToDestination = (src, dest, liftId) => {
+    const lift = liftState.find(lift => lift.id === liftId);
+
+    const distance = -1 * (dest) * 120;
+    const time = Math.abs(src - dest) * 2;
+    const leftDoor = document.querySelector(`#left-door${liftId}`);
+    const rightDoor = document.querySelector(`#right-door${liftId}`);
+    
+    startLiftMovement(lift, dest, time, leftDoor, rightDoor);
+
     lift.isMoving = true;
     lift.movingTo = dest;
     lift.domElement.style.transform = `translateY(${distance}px)`;
-    lift.domElement.style.transition = `transform ${time}s`;
+    lift.domElement.style.transition = `transform ${time}s linear`;
 };
 
 const findNearestlift = (liftState, destinationFloor) => {
