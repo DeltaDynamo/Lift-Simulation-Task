@@ -53,7 +53,8 @@ const createFloors = (floorCount,liftCount) => {
 
         const floorNumber = document.createElement("span");
         floorNumber.classList.add("floor-number");
-        floorNumber.innerText = "Floor " + String((floorCount - i - 1));
+        if(floorCount - i - 1 > 0) floorNumber.innerText = "Floor " + String((floorCount - i - 1));
+        else floorNumber.innerText = "GND";
 
         const buttonsContainer = document.createElement("div");
         buttonsContainer.classList.add("buttons-box");
