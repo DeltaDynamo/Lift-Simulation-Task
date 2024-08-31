@@ -57,6 +57,12 @@ const createFloors = (floorCount,liftCount) => {
 
         const buttonsContainer = document.createElement("div");
         buttonsContainer.classList.add("buttons-box");
+
+        if(floorCount === 1) {
+            upButton.innerText = "〉 | 〈";
+            buttonsContainer.appendChild(upButton);
+        }
+
         if(i>0) buttonsContainer.appendChild(upButton);
         buttonsContainer.appendChild(floorNumber);
         if(i<floorCount-1) buttonsContainer.appendChild(downButton);
@@ -82,6 +88,8 @@ const createLifts = (liftCount) => {
 
         leftDoor.id = `left-door${i}`;
         rightDoor.id = `right-door${i}`;
+        leftDoor.innerHTML = `<span>L</span>`;
+        rightDoor.innerHTML = `${i+1}`;
 
         lift.appendChild(leftDoor);
         lift.appendChild(rightDoor);
@@ -137,14 +145,16 @@ const buttonClickHandler = (event) => {
 };
 
 function openCloseDoors(lift, leftDoor, rightDoor) {
+    if(liftState.isMoving || lift.isBusy) return;
+
+    lift.isBusy = true;
+
     setTimeout(() => {
         leftDoor.style.transform = `translateX(-100%)`;
         leftDoor.style.transition = `transform 2.5s linear`;
         rightDoor.style.transform = `translateX(100%)`;
         rightDoor.style.transition = `transform 2.5s linear`;
     }, 0);
-
-    lift.isBusy = true;
 
     setTimeout(() => {
         leftDoor.style.transform = `translateX(0)`;
@@ -155,7 +165,7 @@ function openCloseDoors(lift, leftDoor, rightDoor) {
 
     setTimeout(() => {
         lift.isBusy = false;
-    }, 5001);
+    }, 5002);
 }
 
 function doorMovement(lift, dest, time, leftDoor, rightDoor) {
@@ -163,6 +173,7 @@ function doorMovement(lift, dest, time, leftDoor, rightDoor) {
     setTimeout(() => {
         //console.log("Set Timeout 1 called!");
         lift.currentFloor = dest;
+        lift.isBusy = true;
         leftDoor.style.transform = `translateX(-100%)`;
         leftDoor.style.transition = `transform 2.5s linear`;
         rightDoor.style.transform = `translateX(100%)`;
@@ -173,8 +184,6 @@ function doorMovement(lift, dest, time, leftDoor, rightDoor) {
     setTimeout(() => {
         lift.isMoving = false;
     }, (time * 1000) + 1);
-
-    lift.isBusy = true;
 
     //Close doors
     setTimeout(() => {
@@ -231,10 +240,11 @@ const scheduleLiftMovement = () => {
     const closestLiftId = findClosestLift(liftState, floorCalled, buttonCalled);
     const closestLift = liftState.find(lift => lift.id === closestLiftId);
 
-    if (closestLift === undefined) {
+    if (closestLift === undefined || closestLift.isBusy) {
         pendingAction.unshift(firstActionPending);
         return;
     }
 
+    console.log(closestLift.isBusy);
     moveLiftFromSourceToDestination(closestLift.currentFloor, floorCalled, buttonCalled, closestLiftId);
 };

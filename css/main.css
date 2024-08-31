@@ -82,6 +82,8 @@ button{
 
 .floor-number {
     text-align: center;
+    font-weight: bold;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
 .buttons-box>button.DN{
@@ -120,9 +122,23 @@ button{
 
 .door{
     border: 1px solid rgb(0, 0, 0);
-    
+    display: flex;
+    text-align: center;
     background-color: black;
     width: 40px;
+    font-weight: bold;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+.left-door {
+    color: yellow;
+    padding-top: 30px;
+    justify-content: flex-end;
+}
+
+.right-door{
+    color: yellow;
+    padding-top: 30px;
 }
 
 @media screen and (max-width: 800px) {
