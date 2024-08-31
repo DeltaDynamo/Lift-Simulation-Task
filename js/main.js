@@ -10,7 +10,7 @@ submitButton.addEventListener("click", (e) => {
     const numberOfFloors = Number(noOfFloors.value);
     const numberOfLifts = Number(noOfLifts.value);
 
-    if ((!numberOfFloors || !numberOfLifts) || (numberOfFloors<0 || numberOfLifts<0)) {
+    if ((!numberOfFloors || !numberOfLifts) || (numberOfFloors<=0 || numberOfLifts<=0)) {
         alert("Please Enter Valid no of Floors and Lifts");
         return;
     }
@@ -30,7 +30,7 @@ const createScenario = (liftCount, floorCount) => {
 const createFloors = (floorCount,liftCount) => {
     const viewportWidth = window.innerWidth;
 
-    const requiredWidth = 70 * liftCount + 80;
+    const requiredWidth = 100 * liftCount + 80;
 
     for (let i = 0; i < floorCount; i++) {
         const floor = document.createElement("div");

@@ -23,7 +23,7 @@
     display: flex;
     color: black;
     flex-direction: row;
-    width: 60%;
+    width: 65%;
     justify-content: center;
     margin: 2rem auto;
     padding: 2px;
@@ -34,7 +34,7 @@
 label {
     font-weight: bold;
     margin: 1rem;
-    width: 15%;
+    width: 20%;
 }
 
 .form > button {
