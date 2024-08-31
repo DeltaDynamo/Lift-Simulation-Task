@@ -104,6 +104,7 @@ button{
 
 .lift{
     background-color: yellow;
+    color: white;
     height: 80px;
     max-height: 80px;
     width: 60px;

@@ -1,17 +1,18 @@
 const noOfFloors = document.getElementById("no-of-floors");
 const noOfLifts = document.getElementById("no-of-lifts");
-const submitButton = document.getElementById("submit")
+const submitButton = document.getElementById("submitButton");
 const body = document.querySelector("body");
 const mainArea = document.querySelector("#main-area");
 const form = document.querySelector(".form");
 
-submitButton.addEventListener('click', (e) => {
-    e.preventDefault()
+submitButton.addEventListener("click", (e) => {
+    e.preventDefault();
     const numberOfFloors = Number(noOfFloors.value);
     const numberOfLifts = Number(noOfLifts.value);
 
     if ((!numberOfFloors || !numberOfLifts) || (numberOfFloors<0 || numberOfLifts<0)) {
         alert("Please Enter Valid no of Floors and Lifts");
+        return;
     }
     createScenario(numberOfLifts, numberOfFloors);
     form.style.display = "none";
@@ -19,7 +20,7 @@ submitButton.addEventListener('click', (e) => {
 
 let liftState = [];
 let floors = [];
-let pending = [];
+let pendingAction = [];
 
 const createScenario = (liftCount, floorCount) => {
     createFloors(floorCount,liftCount);
@@ -42,11 +43,11 @@ const createFloors = (floorCount,liftCount) => {
         upButton.innerText = "UP";
         upButton.classList.add("UP");
         upButton.id = `up${floorCount - i - 1}`
-        upButton.addEventListener("click", buttonClickHander);
+        upButton.addEventListener("click", buttonClickHandler);
 
         const downButton = document.createElement("button");
         downButton.classList.add("DN");
-        downButton.addEventListener('click', buttonClickHander)
+        downButton.addEventListener('click', buttonClickHandler)
         downButton.id = `dn${floorCount - i - 1}`;
         downButton.innerText = 'DN';
 
@@ -94,9 +95,9 @@ const createLifts = (liftCount) => {
             domElement: lift,
             innerHtML: ``,
             isMoving: false,
-            direction: "up",
+            lastButtonCalled: null,
             isBusy: false,
-            movingTo: null,
+            goingTo: null,
         };
         floor0.appendChild(lift);
         liftState.push(currLiftState);
@@ -104,31 +105,74 @@ const createLifts = (liftCount) => {
 
     setInterval(() => {
         scheduleLiftMovement();
-    }, 10);
+    }, 100);
 };
 
-const buttonClickHander = (event) => {
+const checkIfLiftComingToFloor = (liftState, destinationFloor, buttonCalled) => {
+    const isLiftOnFloor = liftState.find(lift => lift.isMoving === false && lift.isBusy === true && lift.currentFloor === destinationFloor);
+
+    if(isLiftOnFloor != undefined) {
+        const lift = isLiftOnFloor;
+        const leftDoor = document.querySelector(`#left-door${lift.id}`);
+        const rightDoor = document.querySelector(`#right-door${lift.id}`);
+        openCloseDoors(lift, leftDoor, rightDoor);
+        return true;
+    }
+
+    const isLiftComingToThatFloor = liftState.find(lift => lift.isMoving === true && lift.goingTo === destinationFloor && lift.lastButtonCalled === buttonCalled);
+
+    if(isLiftComingToThatFloor === undefined){
+        return false;
+    }
+    return true;
+}
+
+const buttonClickHandler = (event) => {
     const floorNumberCalled = Number(event.target.id.substring(2));
-    const direction = event.target.id.substring(0,2) === "dn" ? "dn" : "up";
-    const isLiftComing = liftState.find(lift => lift.currentFloor === floorNumberCalled && lift.isMoving === true);
-    if (isLiftComing) {
+    const buttonCalledFrom = event.target.id.substring(0,2) === "dn" ? "dn" : "up";
+    if (checkIfLiftComingToFloor(liftState, floorNumberCalled, buttonCalledFrom)) {
         return;
     }
-    pending.push(floorNumberCalled)
+    pendingAction.push([floorNumberCalled, buttonCalledFrom]);
 };
 
-function startLiftMovement(lift, dest, time, leftDoor, rightDoor) {
-    //Open Doors on Reaching Floor
+function openCloseDoors(lift, leftDoor, rightDoor) {
     setTimeout(() => {
-        //console.log("Set Timeout 1 called!");
         leftDoor.style.transform = `translateX(-100%)`;
         leftDoor.style.transition = `transform 2.5s linear`;
-        rightDoor.style.transform = `translateX(100%)`
-        rightDoor.style.transition = `transform 2.5s linear`
+        rightDoor.style.transform = `translateX(100%)`;
+        rightDoor.style.transition = `transform 2.5s linear`;
+    }, 0);
+
+    lift.isBusy = true;
+
+    setTimeout(() => {
+        leftDoor.style.transform = `translateX(0)`;
+        leftDoor.style.transition = `transform 2.5s linear`;
+        rightDoor.style.transform = `translateX(0)`
+        rightDoor.style.transition = `transform 2.5s linear`;
+    }, 2500);
+
+    setTimeout(() => {
+        lift.isBusy = false;
+    }, 5001);
+}
+
+function doorMovement(lift, dest, time, leftDoor, rightDoor) {
+    //Open Doors on Reaching Floor, lift is now busy
+    setTimeout(() => {
+        //console.log("Set Timeout 1 called!");
         lift.currentFloor = dest;
-        lift.isMoving = false;
-        lift.movingTo = null;
+        leftDoor.style.transform = `translateX(-100%)`;
+        leftDoor.style.transition = `transform 2.5s linear`;
+        rightDoor.style.transform = `translateX(100%)`;
+        rightDoor.style.transition = `transform 2.5s linear`;
+        lift.goingTo = null;
     }, time * 1000);
+
+    setTimeout(() => {
+        lift.isMoving = false;
+    }, (time * 1000) + 1);
 
     lift.isBusy = true;
 
@@ -145,10 +189,11 @@ function startLiftMovement(lift, dest, time, leftDoor, rightDoor) {
     setTimeout(() => {
         //console.log("Set Timeout 3 called!");
         lift.isBusy = false;
-    }, time * 1000 + 5000);
+        lift.currentFloor = dest;
+    }, time * 1000 + 5001);
 }
 
-const moveLiftFromSourceToDestination = (src, dest, liftId) => {
+const moveLiftFromSourceToDestination = (src, dest, buttonCalled, liftId) => {
     const lift = liftState.find(lift => lift.id === liftId);
 
     const distance = -1 * (dest) * 120;
@@ -156,20 +201,21 @@ const moveLiftFromSourceToDestination = (src, dest, liftId) => {
     const leftDoor = document.querySelector(`#left-door${liftId}`);
     const rightDoor = document.querySelector(`#right-door${liftId}`);
     
-    startLiftMovement(lift, dest, time, leftDoor, rightDoor);
+    doorMovement(lift, dest, time, leftDoor, rightDoor);
 
     lift.isMoving = true;
-    lift.movingTo = dest;
+    lift.goingTo = dest;
+    lift.lastButtonCalled = buttonCalled;
     lift.domElement.style.transform = `translateY(${distance}px)`;
     lift.domElement.style.transition = `transform ${time}s linear`;
 };
 
-const findNearestlift = (liftState, destinationFloor) => {
+const findClosestLift = (liftState, destinationFloor, buttonCalled) => {
     let distance = floors.length;
-    let liftId = 0;
+    let liftId = null;
     for (let i = 0; i < liftState.length; i++) {
         const lift = liftState[i];
-        if (Math.abs(lift.currentFloor - destinationFloor) < distance && lift.isBusy === false ) {
+        if (Math.abs(lift.currentFloor - destinationFloor) < distance && lift.isMoving === false && lift.isBusy === false ) {
             distance = Math.abs(lift.currentFloor - destinationFloor);
             liftId = lift.id;
         }
@@ -178,14 +224,17 @@ const findNearestlift = (liftState, destinationFloor) => {
 };
 
 const scheduleLiftMovement = () => {
-    if (pending.length === 0) return;
-    const floor = pending.shift();
-    const nearestliftId = findNearestlift(liftState, floor);
-    const nearestLift = liftState.find(lift => lift.id === nearestliftId);
+    if (pendingAction.length === 0) return;
+    const firstActionPending = pendingAction.shift();
+    const floorCalled = firstActionPending[0];
+    const buttonCalled = firstActionPending[1];
+    const closestLiftId = findClosestLift(liftState, floorCalled, buttonCalled);
+    const closestLift = liftState.find(lift => lift.id === closestLiftId);
 
-    if (!nearestLift) {
-        pending.unshift(floor);
+    if (closestLift === undefined) {
+        pendingAction.unshift(firstActionPending);
         return;
     }
-    moveLiftFromSourceToDestination(nearestLift.currentFloor, floor, nearestliftId);
+
+    moveLiftFromSourceToDestination(closestLift.currentFloor, floorCalled, buttonCalled, closestLiftId);
 };
