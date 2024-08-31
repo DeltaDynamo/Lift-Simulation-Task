@@ -145,8 +145,6 @@ const buttonClickHandler = (event) => {
 };
 
 function openCloseDoors(lift, leftDoor, rightDoor) {
-    if(liftState.isMoving || lift.isBusy) return;
-
     lift.isBusy = true;
 
     setTimeout(() => {
