@@ -245,6 +245,6 @@ const scheduleLiftMovement = () => {
         return;
     }
 
-    console.log(closestLift.isBusy);
+    //console.log(closestLift.isBusy);
     moveLiftFromSourceToDestination(closestLift.currentFloor, floorCalled, buttonCalled, closestLiftId);
 };
