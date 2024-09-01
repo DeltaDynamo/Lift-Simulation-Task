@@ -252,7 +252,8 @@ function doorMovement(lift, dest, time, leftDoor, rightDoor) {
 const moveLiftFromSourceToDestination = (src, dest, buttonCalled, liftId) => {
     const lift = liftState.find(lift => lift.id === liftId);
 
-    const distance = -1 * (dest) * 120;
+    let distance = -1 * (dest) * 120.8;
+    if(window.innerWidth < 900) distance = -1 * (dest) * 100.8;
     const time = Math.abs(src - dest) * 2;
     const leftDoor = document.querySelector(`#left-door${liftId}`);
     const rightDoor = document.querySelector(`#right-door${liftId}`);

@@ -160,7 +160,7 @@ button{
     z-index: 3;
 }
 
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 900px) {
     body{
         width: 100%;
     }
@@ -177,4 +177,52 @@ button{
         width: 80%;
         margin: 0.5rem 0;
     }
+
+    .floor{
+        border-bottom: 1px solid black;
+        max-height: 90px;
+        height: 90px;
+        display: flex;
+        align-items: center;
+        margin: 10px;
+        z-index: 1;
+    }
+
+    .lift{
+        background-color: yellow;
+        color: white;
+        height: 60px;
+        max-height: 60px;
+        width: 40px;
+        z-index: 2;
+        position: absolute;
+        left:50px;
+        display: flex;
+        border: 1px solid black;
+        border-radius: 4px;
+        overflow: hidden;
+        padding: 0;
+    }
+
+    .door{
+        border: 1px solid rgb(0, 0, 0);
+        display: flex;
+        text-align: center;
+        background-color: black;
+        width: 20px;
+        font-weight: bold;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+    
+    .left-door {
+        color: yellow;
+        padding-top: 20px;
+        justify-content: flex-end;
+    }
+    
+    .right-door{
+        color: yellow;
+        padding-top: 20px;
+    }
+    
 }
