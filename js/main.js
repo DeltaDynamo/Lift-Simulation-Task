@@ -5,6 +5,26 @@ const body = document.querySelector("body");
 const mainArea = document.querySelector("#main-area");
 const form = document.querySelector(".form");
 
+function validateInput(event) {
+    if (!/^[0-9]$/.test(event.key)) {
+        event.preventDefault();
+    }
+}
+
+noOfFloors.addEventListener("keypress", validateInput);
+noOfLifts.addEventListener("keypress", validateInput);
+
+[noOfFloors, noOfLifts].forEach((input) => {
+    input.addEventListener("paste", (event) => {
+        const paste = (event.clipboardData || window.clipboardData).getData(
+        "text"
+        );
+        if (!/^\d+$/.test(paste)) {
+        event.preventDefault();
+    }
+});
+});
+
 submitButton.addEventListener("click", (e) => {
     e.preventDefault();
     const numberOfFloors = Number(noOfFloors.value);
