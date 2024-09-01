@@ -31,7 +31,7 @@ submitButton.addEventListener("click", (e) => {
     const numberOfLifts = Number(noOfLifts.value);
 
     if ((!numberOfFloors || !numberOfLifts) || (numberOfFloors<=0 || numberOfLifts<=0)) {
-        alert("Please Enter Valid no of Floors and Lifts");
+        alert("Please Enter Valid no of Floors > 0 and Lifts > 0");
         return;
     }
     createScenario(numberOfLifts, numberOfFloors);
