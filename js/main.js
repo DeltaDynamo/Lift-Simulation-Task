@@ -92,6 +92,12 @@ const createLifts = (liftCount) => {
         leftDoor.innerHTML = `<span>L</span>`;
         rightDoor.innerHTML = `${i+1}`;
 
+        const statusDot = document.createElement("div");
+        statusDot.classList.add("status-dot");
+        statusDot.id = `status-dot${i}`;
+        leftDoor.appendChild(statusDot);
+
+
         lift.appendChild(leftDoor);
         lift.appendChild(rightDoor);
         lift.classList.add('lift')
@@ -116,6 +122,25 @@ const createLifts = (liftCount) => {
     setInterval(() => {
         scheduleLiftMovement();
     }, 100);
+
+    setInterval(() => {
+        checkLiftStatus();
+    }, 5);
+};
+
+function checkLiftStatus() {
+    for(let i=0;i<liftState.length;i++){
+        const lift = liftState[i];
+        const statusDot = document.querySelector(`#status-dot${lift.id}`);
+        if(lift.isBusy || lift.isMoving){
+            //set status light to red
+            statusDot.style.backgroundColor = "red";
+        }
+        else {
+            //set status light to green
+            statusDot.style.backgroundColor = "greenyellow";
+        }
+    }
 };
 
 const checkIfLiftComingToFloor = (liftState, destinationFloor, buttonCalled) => {

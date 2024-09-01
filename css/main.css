@@ -94,6 +94,14 @@ button{
     border-radius: 4px;
 }
 
+.buttons-box>button.DN:active{
+    background-color: rgb(114, 0, 0);
+}
+
+.buttons-box>button.UP:active{
+    background-color: rgb(111, 203, 25);
+}
+
 .floor{
     border-bottom: 1px solid black;
     max-height: 110px;
@@ -139,6 +147,17 @@ button{
 .right-door{
     color: yellow;
     padding-top: 30px;
+}
+
+.status-dot {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: greenyellow;
+    z-index: 3;
 }
 
 @media screen and (max-width: 800px) {
