@@ -6,7 +6,24 @@ const mainArea = document.querySelector("#main-area");
 const form = document.querySelector(".form");
 
 function validateInput(event) {
-    if (!/^[0-9]$/.test(event.key)) {
+    const inputChar = String.fromCharCode(event.which || event.keyCode);
+
+    if (!/^\d$/.test(inputChar)) {
+        event.preventDefault();
+        return;
+    }
+
+    const newValue = event.target.value + inputChar;
+
+    if (parseInt(newValue) < 1) {
+        event.preventDefault();
+    }
+}
+
+function validatePaste(event) {
+    const pasteData = (event.clipboardData || window.clipboardData).getData("text");
+
+    if (!/^[1-9]\d*$/.test(pasteData)) {
         event.preventDefault();
     }
 }
@@ -15,14 +32,7 @@ noOfFloors.addEventListener("keypress", validateInput);
 noOfLifts.addEventListener("keypress", validateInput);
 
 [noOfFloors, noOfLifts].forEach((input) => {
-    input.addEventListener("paste", (event) => {
-        const paste = (event.clipboardData || window.clipboardData).getData(
-        "text"
-        );
-        if (!/^\d+$/.test(paste)) {
-        event.preventDefault();
-    }
-});
+    input.addEventListener("paste", validatePaste);
 });
 
 submitButton.addEventListener("click", (e) => {
