@@ -31,7 +31,7 @@ submitButton.addEventListener("click", (e) => {
     const numberOfLifts = Number(noOfLifts.value);
 
     if ((!numberOfFloors || !numberOfLifts) || (numberOfFloors<=0 || numberOfLifts<=0)) {
-        alert("Please Enter Valid no of Floors > 0 and Lifts > 0");
+        alert("Please Enter Valid no of Floors i.e., more than 0 and No. of Lifts should be more than 0");
         return;
     }
     createScenario(numberOfLifts, numberOfFloors);
@@ -194,27 +194,38 @@ const buttonClickHandler = (event) => {
 function openCloseDoors(lift, leftDoor, rightDoor) {
     lift.doorReopen.push(1);
 
-    setTimeout(() => {
-        leftDoor.style.transform = `translateX(-100%)`;
-        leftDoor.style.transition = `transform 2.5s linear`;
-        rightDoor.style.transform = `translateX(100%)`;
-        rightDoor.style.transition = `transform 2.5s linear`;
-    }, 0);
-    
+    if (lift.currentDoorTimeout) {
+        clearTimeout(lift.currentDoorTimeout);
+        leftDoor.style.transition = 'transform 2.5s linear';
+        rightDoor.style.transition = 'transform 2.5s linear';
+        leftDoor.style.transform = 'translateX(-100%)';
+        rightDoor.style.transform = 'translateX(100%)';
+    } else {
+        // Initial door open sequence
+        setTimeout(() => {
+            leftDoor.style.transform = `translateX(-100%)`;
+            leftDoor.style.transition = `transform 2.5s linear`;
+            rightDoor.style.transform = `translateX(100%)`;
+            rightDoor.style.transition = `transform 2.5s linear`;
+        }, 0);
+    }
+
     lift.isBusy = true;
 
-    setTimeout(() => {
+    lift.currentDoorTimeout = setTimeout(() => {
         leftDoor.style.transform = `translateX(0)`;
-        leftDoor.style.transition = `transform 2.5s linear`;
-        rightDoor.style.transform = `translateX(0)`
-        rightDoor.style.transition = `transform 2.5s linear`;
+        rightDoor.style.transform = `translateX(0)`;
     }, 2500);
 
     setTimeout(() => {
         lift.doorReopen.pop();
-        if(lift.doorReopen.length === 0) lift.isBusy = false;
-    }, 5001);
+        if (lift.doorReopen.length === 0) {
+            lift.isBusy = false;
+            lift.currentDoorTimeout = null;
+        }
+    }, 5000);
 }
+
 
 function doorMovement(lift, dest, time, leftDoor, rightDoor) {
     //Open Doors on Reaching Floor, lift is now busy
